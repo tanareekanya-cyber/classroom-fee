@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ระบบเก็บเงินห้องเรียน 🌸</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#fdf2f8;min-height:100vh}
+:root{
+  --p50:#fdf2f8;--p100:#fce7f3;--p200:#fbcfe8;--p300:#f9a8d4;
+  --p400:#f472b6;--p500:#ec4899;--p600:#db2777;--p700:#be185d;--p800:#9d174d;
+}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fce7f3,#fdf2f8)}
+.login-card{background:white;border-radius:20px;padding:2.5rem 2rem;border:1.5px solid var(--p200);max-width:340px;width:100%;text-align:center;box-shadow:0 4px 24px #f9a8d433}
+.login-logo{font-size:52px;margin-bottom:.5rem}
+.login-title{font-size:20px;font-weight:600;color:var(--p700);margin-bottom:.25rem}
+.login-sub{font-size:13px;color:#be185d88;margin-bottom:1.5rem}
+.login-input{width:100%;padding:10px 14px;border:1.5px solid var(--p200);border-radius:10px;font-size:15px;outline:none;margin-bottom:1rem;color:var(--p800);background:var(--p50);font-family:'Sarabun',sans-serif}
+.login-input:focus{border-color:var(--p400);background:white}
+.btn-pink{background:var(--p500);color:white;border:none;border-radius:10px;padding:10px 24px;font-size:15px;cursor:pointer;font-weight:600;width:100%;font-family:'Sarabun',sans-serif}
+.btn-pink:hover{background:var(--p600)}
+.login-err{color:#dc2626;font-size:13px;margin-top:8px;min-height:20px}
+.view-btn{background:var(--p50);color:var(--p600);border:1.5px solid var(--p200);border-radius:10px;padding:10px 24px;font-size:14px;cursor:pointer;width:100%;margin-top:10px;font-family:'Sarabun',sans-serif}
+.view-btn:hover{background:var(--p100)}
+#app{display:none}
+.top-bar{background:white;border-bottom:1.5px solid var(--p100);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px #f9a8d422}
+.top-title{font-size:17px;font-weight:600;color:var(--p700)}
+.badge{background:var(--p100);color:var(--p700);font-size:12px;padding:4px 10px;border-radius:20px;font-weight:600}
+.logout-btn{background:none;border:1px solid var(--p200);color:var(--p500);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:'Sarabun',sans-serif}
+.logout-btn:hover{background:var(--p50)}
+.nav-tabs{display:flex;background:var(--p50);border-bottom:1.5px solid var(--p100);padding:0 1.5rem}
+.nav-tab{padding:12px 20px;font-size:14px;cursor:pointer;color:#9d174d88;border-bottom:2.5px solid transparent;font-weight:600;transition:all .15s;font-family:'Sarabun',sans-serif}
+.nav-tab.active{color:var(--p600);border-bottom-color:var(--p500)}
+.nav-tab:hover{color:var(--p600)}
+.content{padding:1.25rem 1.5rem}
+.page{display:none}.page.active{display:block}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem}
+.stat-card{background:white;border-radius:12px;padding:1rem;border:1px solid var(--p100);text-align:center}
+.stat-num{font-size:22px;font-weight:700;color:var(--p600)}
+.stat-label{font-size:12px;color:#be185d88;margin-top:4px}
+.section-card{background:white;border-radius:14px;padding:1.25rem;border:1px solid var(--p100);margin-bottom:1rem}
+.section-title{font-size:15px;font-weight:600;color:var(--p700)}
+.date-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.week-input,.date-input{border:1.5px solid var(--p200);border-radius:8px;padding:7px 12px;font-size:14px;color:var(--p800);outline:none;background:var(--p50);font-family:'Sarabun',sans-serif}
+.week-input:focus,.date-input:focus{border-color:var(--p400);background:white}
+.add-week-btn{background:var(--p500);color:white;border:none;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600;font-family:'Sarabun',sans-serif}
+.add-week-btn:hover{background:var(--p600)}
+.week-item{background:var(--p50);border:1px solid var(--p100);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;font-size:14px;margin-bottom:8px}
+.week-item strong{color:var(--p700)}
+.week-del{background:none;border:none;color:#fca5a5;cursor:pointer;font-size:18px;padding:2px 6px}
+.week-del:hover{color:#ef4444}
+.student-table{width:100%;border-collapse:collapse;font-size:14px}
+.student-table th{text-align:left;color:#be185d88;font-size:12px;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--p100)}
+.student-table td{padding:8px 8px;border-bottom:.5px solid var(--p50);vertical-align:middle}
+.student-table tr:last-child td{border-bottom:none}
+.student-table tr:hover td{background:var(--p50)}
+.pay-btn{border:1.5px solid var(--p200);border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;font-weight:600;transition:all .15s;min-width:100px;text-align:center;display:inline-block;font-family:'Sarabun',sans-serif}
+.pay-btn.unpaid{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.pay-btn.cash{background:#dcfce7;color:#15803d;border-color:#86efac}
+.pay-btn.transfer{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.pay-btn:hover{opacity:.8;transform:scale(.97)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filter-btn{background:var(--p50);border:1.5px solid var(--p200);color:var(--p700);border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:'Sarabun',sans-serif}
+.filter-btn.active{background:var(--p500);color:white;border-color:var(--p500)}
+.filter-btn:hover{background:var(--p100)}
+.filter-btn.active:hover{background:var(--p600)}
+.readonly-notice{background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:1rem}
+.month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:1rem}
+.month-card{background:white;border-radius:14px;padding:1.25rem;border:1px solid var(--p100)}
+.month-title{font-size:15px;font-weight:600;color:var(--p600);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.month-total-badge{font-size:13px;background:var(--p50);color:var(--p700);padding:3px 10px;border-radius:20px}
+.progress-bar-wrap{background:var(--p100);border-radius:20px;height:8px;overflow:hidden;margin-bottom:4px}
+.progress-bar{background:var(--p400);height:100%;border-radius:20px;transition:width .3s}
+.month-mini-table{width:100%;font-size:13px;margin-top:10px}
+.month-mini-table td{padding:4px 4px}
+.week-selector{border:1.5px solid var(--p200);border-radius:8px;padding:6px 10px;font-size:13px;color:var(--p700);background:var(--p50);outline:none;font-family:'Sarabun',sans-serif}
+.overview-wrap{overflow-x:auto}
+@media(max-width:600px){.content{padding:1rem .75rem}.top-bar{padding:.75rem 1rem}.nav-tab{padding:10px 12px;font-size:13px}}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🌸</div>
+    <div class="login-title">ระบบเก็บเงินห้องเรียน</div>
+    <div class="login-sub">หัวหน้าห้องเท่านั้นที่แก้ไขได้ค่ะ</div>
+    <input class="login-input" type="password" id="pw-input" placeholder="รหัสผ่าน Admin"/>
+    <button class="btn-pink" onclick="doLogin()">✨ เข้าสู่ระบบ Admin</button>
+    <div id="login-err" class="login-err"></div>
+    <button class="view-btn" onclick="enterReadonly()">👀 ดูข้อมูลอย่างเดียว</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="top-bar">
+    <div class="top-title">🌸 ระบบเก็บเงินห้องเรียน</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="badge" id="mode-badge">Admin 🔑</span>
+      <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('page1',this)">🏠 สรุปรายสัปดาห์</div>
+    <div class="nav-tab" onclick="showPage('page2',this)">📅 สรุปรายเดือน</div>
+  </div>
+  <div class="content">
+
+    <div id="page1" class="page active">
+      <div id="readonly-notice" class="readonly-notice" style="display:none">👀 โหมดดูข้อมูล — ไม่สามารถแก้ไขได้</div>
+      <div class="summary-grid">
+        <div class="stat-card"><div class="stat-num" id="s-total">฿0</div><div class="stat-label">ยอดสัปดาห์นี้</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-cash">฿0</div><div class="stat-label">เงินสด 💵</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-transfer">฿0</div><div class="stat-label">โอนเงิน 📱</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-unpaid">0</div><div class="stat-label">ยังไม่จ่าย ❌</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-paid-count">0/40</div><div class="stat-label">จ่ายแล้ว</div></div>
+      </div>
+
+      <div class="section-card" id="date-card">
+        <div class="section-title">📅 เพิ่มสัปดาห์การเก็บเงิน</div>
+        <div class="date-row">
+          <input class="week-input" type="text" id="week-label" placeholder="ชื่อสัปดาห์ เช่น สัปดาห์ที่ 1" style="flex:1;min-width:160px"/>
+          <input class="date-input" type="date" id="week-date"/>
+          <button class="add-week-btn" onclick="addWeek()">+ เพิ่มสัปดาห์</button>
+        </div>
+        <div id="weekly-list" style="margin-top:12px"></div>
+      </div>
+
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="section-title">🎀 รายชื่อนักเรียน</div>
+          <select class="week-selector" id="week-selector" onchange="renderTable()">
+            <option value="">-- เลือกสัปดาห์ --</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="setFilter('all',this)">ทั้งหมด</button>
+          <button class="filter-btn" onclick="setFilter('unpaid',this)">❌ ยังไม่จ่าย</button>
+          <button class="filter-btn" onclick="setFilter('cash',this)">💵 เงินสด</button>
+          <button class="filter-btn" onclick="setFilter('transfer',this)">📱 โอนเงิน</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="student-table">
+            <thead><tr>
+              <th style="width:36px">#</th>
+              <th>ชื่อนักเรียน</th>
+              <th>สถานะการจ่าย</th>
+              <th style="text-align:right">จำนวนเงิน</th>
+            </tr></thead>
+            <tbody id="student-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="page2" class="page">
+      <div class="section-card">
+        <div class="section-title" style="margin-bottom:14px">📅 สรุปรายเดือน</div>
+        <div class="month-grid" id="month-grid"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-title" style="margin-bottom:12px">📋 ตารางรวม — ใครจ่ายบ้างแต่ละสัปดาห์</div>
+        <div class="overview-wrap">
+          <table class="student-table" id="overview-table">
+            <thead id="overview-head"></thead>
+            <tbody id="overview-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ADMIN_PASS = "1234";
+const AMOUNT = 10;
+let isAdmin = false;
+let currentFilter = "all";
+
+const defaultStudents = [
+  "ธนกฤต ศักดิ์สกุลชัย","ภาณุวิชญ์ เจ้าดี","โชคชนะ วงษ์มะหิงค์","ณัฐกิตติ์ สมิงลำ",
+  "วรวัฒน์ ฉิมกูล","วัชรากร กิขุนทด","ชยกฤต สอนอ่อน","ธาวิน เปลี่ยนอินทร์",
+  "พงศกร ปันพรหมราช","ภัทร สรวงศิริ","ชลนธี สว่างศรี","จักรกฤษณ์ ผาหัวดง",
+  "ธีรภัทร ธูปคำ","วิวัฒน์ แสงภักดี","เสกข์สิทธิ์ เทียมโสภา","สุภวัฒน์ มนตรี",
+  "สิวกร พลีพรม","ทิพกฤตา ห่วงพิมาย","วริศรา วังศีรี","นุวดี แก้วพันมา",
+  "ฉันชนก กรวยสวัสดิ์","พาขวัญ นิกรวงษ์","ธนารีย์ กันยะ","สันนิตา ชานนท์",
+  "พิมพ์ชนก ไชยคำมูล","จิราพร รวมภักดี","มณีรัตน์ ทองหล่อ","ชนกานต์ ด่านเรือ",
+  "ณัฏฐณิชา ขุนภักดี","พลชา พูลกสิ","นฤมล ศรีหาบุตร","ปารลิตา นิสุธร",
+  "วชิราภรณ์ พุ่มจันทร์","อรอุมา ทัพพรม","กานต์ธีรา ทองอยู่","ธัญญาลักษณ์ เหล่าพัดมา",
+  "กฤตติกา พาลี","ณัฏฐาชล ตะเภาเงิน","บุญญาดา แสนสุวรรณ์","สุภัสสรา ฉัตรเฉลิม"
+];
+
+function load(){
+  let d;
+  try{d=JSON.parse(localStorage.getItem("classroomFeeData2"))}catch(e){}
+  if(!d) d={students:defaultStudents.slice(),weeks:[],payments:{}};
+  if(!d.payments) d.payments={};
+  if(!d.students) d.students=defaultStudents.slice();
+  if(!d.weeks) d.weeks=[];
+  return d;
+}
+function save(d){localStorage.setItem("classroomFeeData2",JSON.stringify(d))}
+
+document.getElementById("pw-input").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+
+function doLogin(){
+  if(document.getElementById("pw-input").value===ADMIN_PASS){
+    isAdmin=true;
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("app").style.display="block";
+    document.getElementById("mode-badge").textContent="Admin 🔑";
+    document.getElementById("date-card").style.display="block";
+    document.getElementById("readonly-notice").style.display="none";
+    renderAll();
+  } else {
+    document.getElementById("login-err").textContent="รหัสผ่านไม่ถูกต้องค่ะ 🙈";
+  }
+}
+function enterReadonly(){
+  isAdmin=false;
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("mode-badge").textContent="👀 ดูอย่างเดียว";
+  document.getElementById("mode-badge").style.background="#fef3c7";
+  document.getElementById("mode-badge").style.color="#92400e";
+  document.getElementById("date-card").style.display="none";
+  document.getElementById("readonly-notice").style.display="block";
+  renderAll();
+}
+function doLogout(){
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("app").style.display="none";
+  document.getElementById("pw-input").value="";
+  document.getElementById("login-err").textContent="";
+}
+function showPage(id,el){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+  if(id==="page2") renderMonthly();
+}
+function addWeek(){
+  if(!isAdmin) return;
+  const label=document.getElementById("week-label").value.trim();
+  const date=document.getElementById("week-date").value;
+  if(!label){alert("กรุณาใส่ชื่อสัปดาห์ค่ะ");return}
+  const d=load();
+  d.weeks.push({id:"w"+Date.now(),label,date});
+  save(d);
+  document.getElementById("week-label").value="";
+  document.getElementById("week-date").value="";
+  renderAll();
+}
+function deleteWeek(wid){
+  if(!isAdmin||!confirm("ลบสัปดาห์นี้?")) return;
+  const d=load();
+  d.weeks=d.weeks.filter(w=>w.id!==wid);
+  Object.keys(d.payments).forEach(k=>{if(k.startsWith(wid+":")) delete d.payments[k]});
+  save(d); renderAll();
+}
+function getStatus(d,si,wid){return d.payments[wid+":"+si]||"unpaid"}
+function setStatus(si,wid){
+  if(!isAdmin) return;
+  const d=load();
+  const key=wid+":"+si;
+  const cur=d.payments[key]||"unpaid";
+  d.payments[key]=cur==="unpaid"?"cash":cur==="cash"?"transfer":"unpaid";
+  save(d); renderTable();
+}
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTable();
+}
+function renderWeekList(){
+  const d=load();
+  const ul=document.getElementById("weekly-list");
+  const sel=document.getElementById("week-selector");
+  ul.innerHTML="";
+  sel.innerHTML="<option value=''>-- เลือกสัปดาห์ --</option>";
+  d.weeks.forEach(w=>{
+    const li=document.createElement("div");
+    li.className="week-item";
+    li.innerHTML=`<span><strong>${w.label}</strong>${w.date?" — "+w.date:""}</span>`
+      +(isAdmin?`<button class="week-del" onclick="deleteWeek('${w.id}')">✕</button>`:"");
+    ul.appendChild(li);
+    const opt=document.createElement("option");
+    opt.value=w.id; opt.textContent=w.label+(w.date?" ("+w.date+")":"");
+    sel.appendChild(opt);
+  });
+  if(d.weeks.length) sel.value=d.weeks[d.weeks.length-1].id;
+}
+function renderTable(){
+  const d=load();
+  const wid=document.getElementById("week-selector").value;
+  const tbody=document.getElementById("student-tbody");
+  tbody.innerHTML="";
+  let cash=0,transfer=0,unpaid=0,paidCount=0;
+  d.students.forEach((name,i)=>{
+    const s=wid?getStatus(d,i,wid):"unpaid";
+    if(s==="cash"){cash+=AMOUNT;paidCount++}
+    else if(s==="transfer"){transfer+=AMOUNT;paidCount++}
+    else unpaid++;
+    if(currentFilter!=="all"&&s!==currentFilter) return;
+    const btnClass=s==="cash"?"pay-btn cash":s==="transfer"?"pay-btn transfer":"pay-btn unpaid";
+    const btnLabel=s==="cash"?"💵 เงินสด":s==="transfer"?"📱 โอนเงิน":"❌ ยังไม่จ่าย";
+    const click=isAdmin&&wid?`onclick="setStatus(${i},'${wid}')"`:""
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td style="color:#be185d88">${i+1}</td>
+      <td style="font-weight:500">${name}</td>
+      <td><button class="${btnClass}" ${click} ${!isAdmin||!wid?"style='cursor:default'":{}}>${btnLabel}</button></td>
+      <td style="text-align:right;font-weight:600;color:#db2777">${s!=="unpaid"?"฿"+AMOUNT:"฿0"}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("s-total").textContent="฿"+(cash+transfer);
+  document.getElementById("s-cash").textContent="฿"+cash;
+  document.getElementById("s-transfer").textContent="฿"+transfer;
+  document.getElementById("s-unpaid").textContent=unpaid;
+  document.getElementById("s-paid-count").textContent=paidCount+"/40";
+}
+function thMonth(ds){
+  const m=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  const d=new Date(ds); return m[d.getMonth()]+" "+(d.getFullYear()+543);
+}
+function renderMonthly(){
+  const d=load();
+  const grid=document.getElementById("month-grid");
+  grid.innerHTML="";
+  const months={};
+  d.weeks.forEach(w=>{
+    const mk=w.date?w.date.slice(0,7):"nodate";
+    const ml=w.date?thMonth(w.date):"ไม่ระบุเดือน";
+    if(!months[mk]) months[mk]={label:ml,weeks:[]};
+    months[mk].weeks.push(w);
+  });
+  if(!Object.keys(months).length){
+    grid.innerHTML="<div style='color:#be185d88;font-size:14px'>ยังไม่มีสัปดาห์ค่ะ</div>";
+    renderOverview(d); return;
+  }
+  Object.values(months).forEach(m=>{
+    let totalMonth=0;
+    let rows="";
+    m.weeks.forEach(w=>{
+      let c=0,t=0,u=0;
+      d.students.forEach((_,i)=>{
+        const s=getStatus(d,i,w.id);
+        if(s==="cash") c++;
+        else if(s==="transfer") t++;
+        else u++;
+      });
+      totalMonth+=(c+t)*AMOUNT;
+      rows+=`<tr>
+        <td style="color:var(--p700)">${w.label}</td>
+        <td style="text-align:center;color:#16a34a">${c}</td>
+        <td style="text-align:center;color:#2563eb">${t}</td>
+        <td style="text-align:center;color:#dc2626">${u}</td>
+        <td style="text-align:right;font-weight:600;color:var(--p600)">฿${(c+t)*AMOUNT}</td>
+      </tr>`;
+    });
+    const pct=Math.round(totalMonth/(40*AMOUNT*m.weeks.length)*100)||0;
+    const card=document.createElement("div");
+    card.className="month-card";
+    card.innerHTML=`<div class="month-title">${m.label}<span class="month-total-badge">฿${totalMonth}</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:#be185d88;margin-bottom:8px">เก็บได้ ${pct}%</div>
+      <table class="month-mini-table">
+        <tr>
+          <th style="text-align:left;color:#be185d88;font-size:12px">สัปดาห์</th>
+          <th style="color:#16a34a;font-size:12px;text-align:center">💵</th>
+          <th style="color:#2563eb;font-size:12px;text-align:center">📱</th>
+          <th style="color:#dc2626;font-size:12px;text-align:center">❌</th>
+          <th style="font-size:12px;text-align:right">ยอด</th>
+        </tr>${rows}
+      </table>`;
+    grid.appendChild(card);
+  });
+  renderOverview(d);
+}
+function renderOverview(d){
+  const head=document.getElementById("overview-head");
+  const body=document.getElementById("overview-body");
+  head.innerHTML=""; body.innerHTML="";
+  if(!d.weeks.length) return;
+  let hrow="<tr><th>#</th><th>ชื่อ</th>";
+  d.weeks.forEach(w=>{hrow+=`<th style="text-align:center;font-size:12px;min-width:80px">${w.label}</th>`});
+  hrow+="</tr>"; head.innerHTML=hrow;
+  d.students.forEach((name,i)=>{
+    let row=`<tr><td style="color:#be185d88">${i+1}</td><td style="font-weight:500">${name}</td>`;
+    d.weeks.forEach(w=>{
+      const s=getStatus(d,i,w.id);
+      row+=`<td style="text-align:center">${s==="cash"?"💵":s==="transfer"?"📱":"❌"}</td>`;
+    });
+    row+="</tr>"; body.innerHTML+=row;
+  });
+}
+function renderAll(){renderWeekList();renderTable()}
+</script>
+</body>
+</html>
